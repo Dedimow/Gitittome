@@ -1,36 +1,25 @@
 import tkinter as tk
+import tkinter.messagebox as mb
 import shutil
 import os
 import time
 from pathlib import Path
 
 #create a dictionary for all source directory paths
-sourcedirectorypaths = {'SkyStudio':'E:\SkyStudio Captures',
-                        'PythonScripts':'E:\Python Scripts',
-                        'Tester':'E:\TestingFolder'}
+sourcedirectorypaths = {'SkyStudio':r'E:\SkyStudio Captures',
+                        'PythonScripts':r'E:\Python Scripts',
+                        'Tester':r'E:\TestingFolder'}
 
 #create a dictionary for all destination directory paths
-destdirectorypaths = {'TimeLapses':'D:\Captures\Time Lapse Dumps',
-                        'PythonBackups':'D:\My Files\PythonBackups',
-                        'TestDest': 'D:\My Files\TestDest' }
+destdirectorypaths = {'TimeLapses':r'D:\Captures\Time Lapse Dumps',
+                        'PythonBackups':r'D:\My Files\PythonBackups',
+                        'TestDest': r'D:\My Files\TestDest' }
 
 #initialize a variable for the source path
 sourceloc = Path()
 
 #initialize a variable for the dest path
 destloc = Path()
-
-#create a function that selects a folder path and places it into a variable as the source
-def selectsource(btnname):
-    sourceloc = sourcedirectorypaths[btnname]
-    print(sourceloc)
-
-
-#create a function that selects a folder path and places it into a variable as the destination
-def selectdest(btnname):
-    destloc = destdirectorypaths[btnname]
-    print(destloc)
-
 
 #initialize the interface environment
 root = tk.Tk()
@@ -41,6 +30,20 @@ root.geometry('960x540')
 #define a name for the window that opens
 root.title("Ed's Sick Rocking Utilities")
 
+#create a function that selects a folder path and places it into a variable as the source
+def selectsource(btnname):
+    global sourceloc
+    sourceloc = sourcedirectorypaths[btnname]
+    tk.Label (root, text = '{}{}{}'.format("Source to Copy"," = ", sourceloc)).place(x=100,y=500)
+    mb.showinfo("Files in source",os.listdir(sourceloc))
+
+#create a function that selects a folder path and places it into a variable as the destination
+def selectdest(btnname):
+    global destloc
+    destloc = destdirectorypaths[btnname]
+    tk.Label (root, text = '{}{}{}'.format("Destination to Receive Files"," = ", destloc)).place(x=700,y=500)
+    mb.showinfo("Files in destination",os.listdir(destloc))
+
 #create label for source directory section
 sourcelabel = tk.Label(root, text = "Source Directories").place(x=100,y=10)
 
@@ -49,7 +52,7 @@ TestBtn = tk.Button  (root,
                     text = "Tester",
                     width = 13,
                     bg = 'blue',
-                    command = selectsource("Tester"))
+                    command=lambda : selectsource("Tester"))
 
 TestBtn.place(x=40,y=85)
 
@@ -58,7 +61,7 @@ SkyBtn = tk.Button  (root,
                     text = "SkyStudio",
                     width = 13,
                     bg = 'blue',
-                    command = selectsource("SkyStudio"))
+                    command =lambda: selectsource("SkyStudio"))
 
 SkyBtn.place(x=40,y=55)
 
@@ -67,7 +70,7 @@ PythBtn = tk.Button  (root,
                     text = "PythonScripts",
                     width = 13,
                     bg = 'blue',
-                    command = selectsource("PythonScripts"))
+                    command =lambda: selectsource("PythonScripts"))
 
 PythBtn.place(x=145,y=55)
 
@@ -79,7 +82,7 @@ TestDestBtn = tk.Button  (root,
                     text = "TestDest",
                     width = 13,
                     bg = 'green',
-                    command = selectdest("TestDest"))
+                    command =lambda: selectdest("TestDest"))
 
 TestDestBtn.place(x=663,y=85)
 
@@ -89,7 +92,7 @@ TLBtn = tk.Button  (root,
                     text = "TimeLapses",
                     width = 13,
                     bg = 'green',
-                    command = selectdest("TimeLapses"))
+                    command =lambda: selectdest("TimeLapses"))
 
 TLBtn.place(x=663,y=55)
 
@@ -98,7 +101,7 @@ PythBckBtn = tk.Button  (root,
                     text = "PythonBackups",
                     width = 13,
                     bg = 'green',
-                    command = selectdest("PythonBackups"))
+                    command =lambda: selectdest("PythonBackups"))
 
 PythBckBtn.place(x=768,y=55)
 
@@ -112,41 +115,47 @@ def copier():
     #initialize list for all file names in destination
     namelist = []
 
-    #walk function separates parts of path into 3 lists #TL = Time Lapse
-    #     1. A string of the current folder's name
-    #     2. A list of strings in the current folder
-    #     3. A list of strings of the files in the current folder
-    for TLDump, FolderNames, TLVideos in os.walk('D:\My Files\TestDest'):
-        
-        #make list of all file paths in destination folder
-        for tls in TLVideos:
+    #make list of all file paths in destination folder
+    for x in os.listdir(destloc):
             
-            #create full file path string and puts into temppath variable
-            temppath = Path(Path(TLDump) / Path(tls))
+        #create full file path string and puts into temppath variable
+        temppath = Path(Path(destloc) / Path(x))
+        #print(temppath)
+        #add full file path as a path object to the destination list
+        destlist.append(Path(temppath))
 
-            #add full file path as a path object to the destination list
-            destlist.append(Path(temppath))
+        #create list of just file names without paths
+        namelist.append(temppath.name)
 
-            #create list of just file names without paths
-            namelist.append(temppath.name)
+    #loop to evaluate all items in the source location
+    for y in os.listdir(sourceloc):
 
-    #walk function separates parts of path into 3 lists
-    #     1. A string of the current folder's name
-    #     2. A list of strings in the current folder
-    #     3. A list of strings of the files in the current folder  
-    for SkyStudio, DateFolders, VideoFiles in os.walk('E:\TestingFolder'):
-        
-        #loop to evaluate all items in the VideoFiles list
-        for avi in VideoFiles:
-            
-            #create full file path string and puts into temppath variable
-            temppath = (Path(SkyStudio) / Path(avi))
-            
+        #create full file path string and puts into temppath variable
+        temppath = (Path(sourceloc) / Path(y))
+
+        #print(temppath)
+
+        #if str(temppath).endswith('.*') or str(temppath).endswith('.csv') or str(temppath).endswith('.py') or str(temppath).endswith('.git'):
+        if (not '.git' in str(temppath)) and ('.' in str(temppath)):
+
+            print(temppath)      
             #add full file path as a path object to the source list
             sourcelist.append(Path(temppath))
+
+        elif not '.git' in str(temppath): 
+
+            for x in os.listdir(temppath):
+                
+                newtemppath = (Path(temppath) / Path(x))
+                print(newtemppath)
+                sourcelist.append(Path(newtemppath))
+
+
+
     start = ()
     end = ()
     counter = 0
+
     #look at each item in the sourcelist i.e. the source directory
     for unit in sourcelist:
         
@@ -159,26 +168,36 @@ def copier():
                 if Path(item).name is Path(unit).name:
                     
                     #determine size of the item in the sourcelist and compare to item size in destlist
-                    if os.path.getsize(unit) > os.path.getsize(item):
+                    if os.path.getsize(Path(unit)) > os.path.getsize(Path(item)):
                         
                         print("Dest" , Path(item).name)
                         print("Source" , Path(unit).name)
 
                         #copy larger file into
-                        shutil.copy(unit , 'D:\My Files\TestDest')
+                        shutil.copy(unit , destloc)
+                        destlist.append(unit)
                 end = time.time()
                 looptime = end - start
-                print(counter, " - ", looptime)
+                #print(counter, " - ", looptime)
 
         #determines if the file name is not in the destination folder
         if unit.name not in namelist:
                     
             #full file using the file path is copied from source to destination
-            shutil.copy(unit , 'D:\My Files\TestDest')
+            shutil.copy(unit , destloc)
+            destlist.append(unit)
 
-            #filename is added to destlist
+            #filename is added to namelist
             #((for troubleshooting just in case))
             namelist.append(unit.name)  
+    
+    if destlist == sourcelist:
+        fromto = '{}{}{}{}'.format("From ", sourceloc," to ",destloc)
+        mb.showinfo("All files copied!", fromto )
+    
+    if destlist != sourcelist:
+        fromto = '{}{}{}{}'.format("From ", sourceloc," to ",destloc)
+        mb.showinfo("No copies made!", fromto )
 
 ExecBtn = tk.Button(root, 
                     text = "Run that shit",
@@ -186,6 +205,7 @@ ExecBtn = tk.Button(root,
                     bg = 'orange',
                     command = copier)
 
-ExecBtn.place(x = 450,y = 400)  
+ExecBtn.place(x = 450,y = 400)
+
 #set a loop for the interface to continue showing
 root.mainloop()
