@@ -3,6 +3,7 @@ from pathlib import Path
 import os 
 import time
 
+#legend of coq shaddeaux
 s = Path('E:\SkyStudio Captures')
 d = Path('D:\Captures\Time Lapse Dumps')
 
